@@ -57,6 +57,16 @@ export function appendRequest(requests, request) {
   return [request, ...requests];
 }
 
+export function getRequestPriority(request) {
+  return PRIORITIES.includes(request.priority) ? request.priority : "Normal";
+}
+
+export function filterRequests(requests, priority = "All priorities") {
+  return requests.filter(
+    (request) => priority === "All priorities" || getRequestPriority(request) === priority,
+  );
+}
+
 export function loadRequests(storage = globalThis.localStorage) {
   if (!storage) return [];
 
@@ -65,12 +75,7 @@ export function loadRequests(storage = globalThis.localStorage) {
     if (!stored) return [];
 
     const parsed = JSON.parse(stored);
-    return Array.isArray(parsed)
-      ? parsed.filter(isRequestRecord).map((request) => ({
-          ...request,
-          priority: PRIORITIES.includes(request.priority) ? request.priority : "Normal",
-        }))
-      : [];
+    return Array.isArray(parsed) ? parsed.filter(isRequestRecord) : [];
   } catch {
     return [];
   }

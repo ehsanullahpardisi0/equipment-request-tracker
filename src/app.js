@@ -2,6 +2,8 @@ import {
   RequestValidationError,
   appendRequest,
   createRequest,
+  filterRequests,
+  getRequestPriority,
   loadRequests,
   saveRequests,
 } from "./request-store.js";
@@ -11,13 +13,18 @@ const message = document.querySelector("#form-message");
 const neededByInput = document.querySelector("#needed-by");
 const count = document.querySelector("#request-count");
 const emptyState = document.querySelector("#empty-state");
+const noMatches = document.querySelector("#no-matches");
+const priorityFilter = document.querySelector("#priority-filter");
 const tableWrapper = document.querySelector("#request-table-wrapper");
 const tableBody = document.querySelector("#request-table-body");
 
 let requests = loadRequests();
 
 neededByInput.min = new Date().toISOString().slice(0, 10);
+priorityFilter.value = "All priorities";
 renderRequests();
+
+priorityFilter.addEventListener("change", renderRequests);
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -48,11 +55,13 @@ form.addEventListener("submit", (event) => {
 });
 
 function renderRequests() {
-  const hasRequests = requests.length > 0;
-  count.textContent = `${requests.length} ${requests.length === 1 ? "request" : "requests"}`;
-  emptyState.hidden = hasRequests;
+  const matchingRequests = filterRequests(requests, priorityFilter.value);
+  const hasRequests = matchingRequests.length > 0;
+  count.textContent = `${matchingRequests.length} ${matchingRequests.length === 1 ? "request" : "requests"}`;
+  emptyState.hidden = requests.length > 0 || priorityFilter.value !== "All priorities";
+  noMatches.hidden = hasRequests || priorityFilter.value === "All priorities";
   tableWrapper.hidden = !hasRequests;
-  tableBody.replaceChildren(...requests.map(createRequestRow));
+  tableBody.replaceChildren(...matchingRequests.map(createRequestRow));
 }
 
 function createRequestRow(request) {
@@ -61,7 +70,7 @@ function createRequestRow(request) {
     request.requester,
     request.department,
     request.equipment,
-    request.priority,
+    getRequestPriority(request),
     formatDate(request.neededBy),
     request.reason,
     formatDateTime(request.createdAt),

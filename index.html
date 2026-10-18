@@ -100,12 +100,26 @@
             <p class="step-label">Current workload</p>
             <h2 id="request-list-title">Equipment requests</h2>
           </div>
-          <p id="request-count" class="request-count">0 requests</p>
+          <p id="request-count" class="request-count" role="status" aria-live="polite">0 requests</p>
+        </div>
+
+        <div class="field">
+          <label for="priority-filter">Priority filter</label>
+          <select id="priority-filter">
+            <option value="All priorities" selected>All priorities</option>
+            <option value="Low">Low</option>
+            <option value="Normal">Normal</option>
+            <option value="High">High</option>
+          </select>
         </div>
 
         <div id="empty-state" class="empty-state">
           <h3>No requests yet</h3>
           <p>Add the first equipment request using the form.</p>
+        </div>
+
+        <div id="no-matches" class="empty-state" hidden>
+          <p>No requests match this priority</p>
         </div>
 
         <div id="request-table-wrapper" class="table-wrapper" hidden>
