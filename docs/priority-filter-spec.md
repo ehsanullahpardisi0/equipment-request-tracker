@@ -67,3 +67,39 @@ Implementation is complete when every numbered acceptance criterion is marked Pa
 - Changing saved priority choices, adding priority editing, or automatically assigning urgency.
 - Deleting or modifying existing requests as a consequence of filtering.
 - Unrelated interface redesigns or application fixes.
+
+## Verification Results
+
+### Manual acceptance verification
+
+Source: the user's manual-results report in this chat: "All tests passed". This report is recorded as covering acceptance criteria 1–14. The Pass statuses below are user-reported manual results, not a claim that the assistant independently performed every manual check. No per-criterion observations, screenshots, or storage comparison output were supplied with that report.
+
+| Criterion | Check | Status | Evidence |
+|---|---|---|---|
+| 1 | Initial state | Pass | User reported all manual tests passed. |
+| 2 | Filter control | Pass | User reported all manual tests passed. |
+| 3 | High filter | Pass | User reported all manual tests passed. |
+| 4 | Normal filter | Pass | User reported all manual tests passed. |
+| 5 | Low filter | Pass | User reported all manual tests passed. |
+| 6 | Restore all | Pass | User reported all manual tests passed. |
+| 7 | Older request fallback | Pass | User reported all manual tests passed. |
+| 8 | No matching requests | Pass | User reported all manual tests passed. |
+| 9 | No saved requests | Pass | User reported all manual tests passed. |
+| 10 | Refresh and preservation | Pass | User reported all manual tests passed. |
+| 11 | Create a matching request | Pass | User reported all manual tests passed. |
+| 12 | Create a nonmatching request | Pass | User reported all manual tests passed. |
+| 13 | Existing creation behavior | Pass | User reported all manual tests passed. |
+| 14 | No login or database | Pass | User reported all manual tests passed. |
+
+No manual failures or unperformed checks were reported. Any subsequently identified unperformed check must be recorded as Not yet verified; any failure must include a concise explanation.
+
+### Previously confirmed automated verification
+
+Implementation commit: `456b12bfd0c078d676c4f2fccb38496e644813b9`.
+
+- Command: `node --test`, the command configured by `npm test`. npm was unavailable in the execution environment.
+- Confirmed result: 19 passed, 0 failed, 0 skipped, 0 cancelled.
+- `tests/request-store.test.js`: 12 passed, covering creation, validation, storage, filtering, ordering, empty results, and older-record preservation through reload and later creation.
+- `tests/app.test.js`: 7 passed as counted by the Node test runner, covering application event handlers through a DOM test double and HTML checks. These checks do not independently establish native keyboard focus or every manual browser acceptance result.
+
+No automated tests were rerun for this documentation-only update. Requirements and numbered acceptance criteria remain unchanged.
