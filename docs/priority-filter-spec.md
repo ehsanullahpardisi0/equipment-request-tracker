@@ -72,12 +72,12 @@ Implementation is complete when every numbered acceptance criterion is marked Pa
 
 ### Manual acceptance verification
 
-Source: the user's manual-results report in this chat: "All tests passed". This report is recorded as covering acceptance criteria 1–14. The Pass statuses below are user-reported manual results, not a claim that the assistant independently performed every manual check. No per-criterion observations, screenshots, or storage comparison output were supplied with that report.
+Source: the user's manual-results report in this chat: "All tests passed", recorded as covering acceptance criteria 1–14, plus the user's subsequent criterion 2 observations below. These are user-reported manual results, not a claim that the assistant independently performed the checks. Apart from the criterion 2 observations recorded here, no per-criterion observations, screenshots, or storage comparison output were supplied with the original report.
 
 | Criterion | Check | Status | Evidence |
 |---|---|---|---|
 | 1 | Initial state | Pass | User reported all manual tests passed. |
-| 2 | Filter control | Pass | User reported all manual tests passed. |
+| 2 | Filter control | Pass | User reached the priority-filter dropdown using Tab, observed a visible focus indicator, changed priorities using only the keyboard, and observed the equipment requests and matching count update correctly. |
 | 3 | High filter | Pass | User reported all manual tests passed. |
 | 4 | Normal filter | Pass | User reported all manual tests passed. |
 | 5 | Low filter | Pass | User reported all manual tests passed. |
@@ -92,6 +92,10 @@ Source: the user's manual-results report in this chat: "All tests passed". This 
 | 14 | No login or database | Pass | User reported all manual tests passed. |
 
 No manual failures or unperformed checks were reported. Any subsequently identified unperformed check must be recorded as Not yet verified; any failure must include a concise explanation.
+
+### Exercise 7 review decision
+
+Decision: **Modify**. The user accepted the requirements review's Criterion 2 finding as a valid verification gap and resolved it through the manual browser test recorded above. No application code was changed.
 
 ### Previously confirmed automated verification
 
