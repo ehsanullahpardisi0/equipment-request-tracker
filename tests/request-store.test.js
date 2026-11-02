@@ -6,6 +6,8 @@ import {
   STORAGE_KEY,
   appendRequest,
   createRequest,
+  filterRequests,
+  getRequestPriority,
   loadRequests,
   saveRequests,
 } from "../src/request-store.js";
@@ -113,12 +115,73 @@ test("createRequest rejects unsupported priority values", () => {
   }
 });
 
-test("older stored requests retain their data and receive Normal priority", () => {
+test("older stored requests behave as Normal without changing saved data", () => {
   const storage = new MemoryStorage();
   const request = createRequest(validInput);
   delete request.priority;
   saveRequests([request], storage);
 
-  assert.deepEqual(loadRequests(storage), [{ ...request, priority: "Normal" }]);
+  const loaded = loadRequests(storage);
+  assert.deepEqual(loaded, [request]);
+  assert.equal(getRequestPriority(loaded[0]), "Normal");
+  assert.deepEqual(filterRequests(loaded, "Normal"), [request]);
+  assert.equal(Object.hasOwn(loaded[0], "priority"), false);
   assert.deepEqual(JSON.parse(storage.getItem(STORAGE_KEY)), [request]);
+});
+
+function filterFixture() {
+  return ["High", "Normal", "Low", "High"].map((priority, index) =>
+    createRequest({ ...validInput, priority }, {
+      id: ["H-new", "N-new", "L-old", "H-old"][index],
+      now: new Date(Date.UTC(2026, 9, 18, 12 - index)),
+    }),
+  );
+}
+
+test("filtering each priority and All preserves the original order and records", () => {
+  const requests = filterFixture();
+  const before = JSON.stringify(requests);
+  for (const request of requests) Object.freeze(request);
+  Object.freeze(requests);
+  const expected = {
+    "All priorities": ["H-new", "N-new", "L-old", "H-old"],
+    High: ["H-new", "H-old"],
+    Normal: ["N-new"],
+    Low: ["L-old"],
+  };
+  for (const [priority, ids] of Object.entries(expected)) {
+    assert.deepEqual(filterRequests(requests, priority).map((r) => r.id), ids);
+  }
+  assert.equal(JSON.stringify(requests), before);
+  assert.notEqual(filterRequests(requests), requests);
+});
+
+test("filtering empty and nonmatching collections returns no records", () => {
+  for (const priority of ["All priorities", "Low", "Normal", "High"]) {
+    assert.deepEqual(filterRequests([], priority), []);
+  }
+  assert.deepEqual(filterRequests(filterFixture().filter((r) => r.priority !== "High"), "High"), []);
+});
+
+test("older records remain unchanged through filtering, reload, and later creation", () => {
+  const storage = new MemoryStorage();
+  const legacy = createRequest(validInput, { id: "legacy" });
+  delete legacy.priority;
+  legacy.extra = "preserve this field";
+  const original = [...filterFixture(), legacy];
+  saveRequests(original, storage);
+  const rawBefore = storage.getItem(STORAGE_KEY);
+  const requests = loadRequests(storage);
+  for (const [priority, count] of [["All priorities", 5], ["Normal", 2], ["Low", 1], ["High", 2]]) {
+    assert.equal(filterRequests(requests, priority).length, count);
+  }
+  assert.equal(storage.getItem(STORAGE_KEY), rawBefore);
+  const reloaded = loadRequests(storage);
+  assert.deepEqual(reloaded, original);
+  assert.equal(getRequestPriority(reloaded.at(-1)), "Normal");
+
+  const next = createRequest({ ...validInput, priority: "Low" }, { id: "next" });
+  saveRequests(appendRequest(reloaded, next), storage);
+  assert.deepEqual(loadRequests(storage), [next, ...original]);
+  assert.equal(Object.hasOwn(loadRequests(storage).at(-1), "priority"), false);
 });
